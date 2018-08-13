@@ -1,20 +1,6 @@
-from construct import BitStruct, Nibble, Bytewise, this, Switch, Container, Enum
-from gsm_layer3_protocol.sms import sms_struct, CpData, CpError, cp_cause
-
-protocol_discriminator = Enum(
-    Nibble,
-    GROUP_CALL_CONTROL=0,
-    BROADCAST_CALL_CONTROL=1,
-    PDSS1=2,
-    CALL_CONTROL=3,
-    PDSS2=4,
-    MOBILITY_MANAGEMENT=5,
-    RADIO_RESOURCES=6,
-    SMS=9,
-    NON_CALL_RELATED_SS=0xb,
-    EXTENSION_OF_PD=0xe,
-    TEST_PROCEDURES=0xf
-)
+from construct import BitStruct, Nibble, Bytewise, this, Switch, Container
+from gsm_layer3_protocol.enums import protocol_discriminator as pd
+from gsm_layer3_protocol.sms_protocol.sms import sms_struct
 
 
 class L3Message(Container):
@@ -28,11 +14,11 @@ class L3Message(Container):
 
 l3_struct = BitStruct(
     "transaction_identifier" / Nibble,
-    "protocol_discriminator" / protocol_discriminator,
+    "protocol_discriminator" / pd,
     "l3_protocol" / Bytewise(Switch(
         this.protocol_discriminator,
         {
-            protocol_discriminator.SMS: sms_struct
+            pd.SMS: sms_struct
         }
     ))
 )

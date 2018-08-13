@@ -1,6 +1,7 @@
 from gsm_layer3_protocol import parse, build
-from gsm_layer3_protocol.l3_message import L3Message, protocol_discriminator
-from gsm_layer3_protocol.sms import CpError, cp_cause, message_type
+from gsm_layer3_protocol.enums import protocol_discriminator, message_type, cp_cause
+from gsm_layer3_protocol.l3_message import L3Message
+from gsm_layer3_protocol.sms_protocol.cp_error import CpError
 
 
 def test_parsing_cp_error():

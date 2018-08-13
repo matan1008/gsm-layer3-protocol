@@ -1,6 +1,7 @@
 from gsm_layer3_protocol import parse, build
-from gsm_layer3_protocol.l3_message import L3Message, protocol_discriminator
-from gsm_layer3_protocol.sms import CpAck, message_type
+from gsm_layer3_protocol.enums import protocol_discriminator, message_type
+from gsm_layer3_protocol.l3_message import L3Message
+from gsm_layer3_protocol.sms_protocol.cp_ack import CpAck
 
 
 def test_parsing_cp_ack():
