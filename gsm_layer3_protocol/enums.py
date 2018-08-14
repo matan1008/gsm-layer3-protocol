@@ -27,5 +27,5 @@ cp_cause = Enum(
 rp_mti = Enum(
     BitsInteger(3),
     RP_DATA_MS_TO_N=0, RP_DATA_N_TO_MS=1, RP_ACK_MS_TO_N=2, RP_ACK_N_TO_MS=3, RP_ERROR_MS_TO_N=4, RP_ERROR_N_TO_MS=5,
-    RP_SMMA_MS_TO_N=6
+    RP_SMMA=6
 )

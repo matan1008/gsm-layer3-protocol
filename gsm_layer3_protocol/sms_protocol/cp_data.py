@@ -1,6 +1,7 @@
 from construct import *
 from gsm_layer3_protocol.enums import message_type as cp_type_enum, rp_mti
 from gsm_layer3_protocol.sms_protocol.rp_ack import rp_ack_struct
+from gsm_layer3_protocol.sms_protocol.rp_smma import rp_smma_struct
 
 
 class CpData(Container):
@@ -17,7 +18,8 @@ cp_data_struct = Prefixed(
             this.mti,
             {
                 rp_mti.RP_ACK_MS_TO_N: rp_ack_struct,
-                rp_mti.RP_ACK_N_TO_MS: rp_ack_struct
+                rp_mti.RP_ACK_N_TO_MS: rp_ack_struct,
+                rp_mti.RP_SMMA: rp_smma_struct
             }
         ))
     )
