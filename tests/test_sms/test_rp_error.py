@@ -73,7 +73,7 @@ def test_building_rp_error_with_diagnostic_field():
 
 
 def test_parsing_rp_error_with_short_rp_user_data_deliver():
-    assert parse(b"\x29\x01\x09\x05\x04\x01\x01\x41\x03\x00\xd2\x00") == {
+    assert parse(b"\x29\x01\x09\x04\x04\x01\x01\x41\x03\x00\xd2\x00") == {
         "transaction_identifier": 2,
         "protocol_discriminator": protocol_discriminator.SMS,
         "l3_protocol": {
@@ -81,7 +81,7 @@ def test_parsing_rp_error_with_short_rp_user_data_deliver():
             "cp_layer_protocol": {
                 "length_indicator": 2,
                 "spare": None,
-                "mti": rp_mti.RP_ERROR_N_TO_MS,
+                "mti": rp_mti.RP_ERROR_MS_TO_N,
                 "rp": {
                     "message_reference": 4,
                     "rp_cause": {
@@ -124,7 +124,7 @@ def test_building_rp_error_with_short_rp_user_data_deliver():
 
 
 def test_parsing_rp_error_with_short_rp_user_data_submit():
-    assert parse(b"\x29\x01\x10\x04\x04\x01\x01\x41\x0a\x01\xd2\x00\x81\x90\x10\x32\x60\x00\x8a") == {
+    assert parse(b"\x29\x01\x10\x05\x04\x01\x01\x41\x0a\x01\xd2\x00\x81\x90\x10\x32\x60\x00\x8a") == {
         "transaction_identifier": 2,
         "protocol_discriminator": protocol_discriminator.SMS,
         "l3_protocol": {
@@ -132,7 +132,7 @@ def test_parsing_rp_error_with_short_rp_user_data_submit():
             "cp_layer_protocol": {
                 "length_indicator": 2,
                 "spare": None,
-                "mti": rp_mti.RP_ERROR_MS_TO_N,
+                "mti": rp_mti.RP_ERROR_N_TO_MS,
                 "rp": {
                     "message_reference": 4,
                     "rp_cause": {
@@ -176,15 +176,15 @@ def test_building_rp_error_with_short_rp_user_data_submit():
         3,
         protocol_discriminator.SMS,
         CpData(
-            rp_mti.RP_ERROR_MS_TO_N,
+            rp_mti.RP_ERROR_N_TO_MS,
             RpError(1, rp_cause.CALL_BARRED, RpErrorSmsSubmitReport(tp_fcs.SC_BUSY, TpScts(18, 9, 1, 23, 6, 0, 2)))
         )
-    )) == b"\x39\x01\x10\x04\x01\x01\x0a\x41\x0a\x01\xc0\x00\x81\x90\x10\x32\x60\x00\x80"
+    )) == b"\x39\x01\x10\x05\x01\x01\x0a\x41\x0a\x01\xc0\x00\x81\x90\x10\x32\x60\x00\x80"
 
 
 def test_parsing_rp_error_full():
     assert parse(
-        b"\x29\x01\x1c\x05\x04\x02\x01\x81\x41\x15\x40\xc3\x07\x20\x80\x0f\x03\x01\x01\xff\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b") == {
+        b"\x29\x01\x1c\x04\x04\x02\x01\x81\x41\x15\x40\xc3\x07\x20\x80\x0f\x03\x01\x01\xff\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b") == {
                "transaction_identifier": 2,
                "protocol_discriminator": protocol_discriminator.SMS,
                "l3_protocol": {
@@ -192,7 +192,7 @@ def test_parsing_rp_error_full():
                    "cp_layer_protocol": {
                        "length_indicator": 2,
                        "spare": None,
-                       "mti": rp_mti.RP_ERROR_N_TO_MS,
+                       "mti": rp_mti.RP_ERROR_MS_TO_N,
                        "rp": {
                            "message_reference": 4,
                            "rp_cause": {

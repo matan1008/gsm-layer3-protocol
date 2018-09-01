@@ -14,7 +14,7 @@ class RpErrorSmsDeliverReport(Container):
             tp_ud = TpUserData(tp_ud)
         tp_udhi = tp_ud is not None and tp_ud.user_data_header is not None
         super().__init__(tp_mti=tp_mti.SMS_DELIVER_OR_REPORT, tp_udhi=tp_udhi, tp_fcs=tp_fcs, tp_pi=tp_pi,
-                         tp_scts=None, tp_pid=tp_pid, tp_dcs=tp_dcs, tp_ud=tp_ud)
+                         tp_pid=tp_pid, tp_dcs=tp_dcs, tp_ud=tp_ud)
 
 
 class TpScts(Container):
@@ -56,7 +56,7 @@ class GmtAdapter(Adapter):
         return ((int(tz_min / 10) & 0x07) + ((tz_min % 10) << 4)) | sign
 
 
-rp_error_tpdu_struct = Prefixed(
+sms_submit_report_tpdu_struct = Prefixed(
     "tpdu_length" / Byte,
     BitStruct(
         Padding(1),
@@ -70,18 +70,34 @@ rp_error_tpdu_struct = Prefixed(
             "tp_dcs" / Flag,
             "tp_pid" / Flag
         ),
-        Probe(),
-        "tp_scts" / If(
-            this.tp_mti == tp_mti.SMS_SUBMIT_OR_REPORT,
-            Bytewise(Struct(
-                "year" / DigitNibblesAdapter(Byte),
-                "month" / DigitNibblesAdapter(Byte),
-                "day" / DigitNibblesAdapter(Byte),
-                "hour" / DigitNibblesAdapter(Byte),
-                "minute" / DigitNibblesAdapter(Byte),
-                "second" / DigitNibblesAdapter(Byte),
-                "gmt" / GmtAdapter(Byte)
-            ))
+        "tp_scts" / Bytewise(Struct(
+            "year" / DigitNibblesAdapter(Byte),
+            "month" / DigitNibblesAdapter(Byte),
+            "day" / DigitNibblesAdapter(Byte),
+            "hour" / DigitNibblesAdapter(Byte),
+            "minute" / DigitNibblesAdapter(Byte),
+            "second" / DigitNibblesAdapter(Byte),
+            "gmt" / GmtAdapter(Byte)
+        )),
+        "tp_pid" / If(this.tp_pi.tp_pid, tp_pid_enum),
+        "tp_dcs" / If(this.tp_pi.tp_dcs, Octet),  # TODO: Make it a nice structure or enum
+        "tp_ud" / If(this.tp_pi.tp_udl, Bytewise(tp_ud_struct))
+    )
+)
+
+sms_deliver_report_tpdu_struct = Prefixed(
+    "tpdu_length" / Byte,
+    BitStruct(
+        Padding(1),
+        "tp_udhi" / Flag,
+        Padding(4),
+        "tp_mti" / tp_mti,
+        "tp_fcs" / tp_fcs_enum,
+        "tp_pi" / Struct(
+            Padding(5),
+            "tp_udl" / Flag,
+            "tp_dcs" / Flag,
+            "tp_pid" / Flag
         ),
         "tp_pid" / If(this.tp_pi.tp_pid, tp_pid_enum),
         "tp_dcs" / If(this.tp_pi.tp_dcs, Octet),  # TODO: Make it a nice structure or enum

@@ -1,7 +1,7 @@
 from construct import *
-from gsm_layer3_protocol.enums import rp_cause as rp_cause_value
+from gsm_layer3_protocol.enums import rp_cause as rp_cause_value, rp_mti
 from gsm_layer3_protocol.sms_protocol.rp_cause import rp_cause_struct, RpCause
-from gsm_layer3_protocol.sms_protocol.rp_error_tpdu import rp_error_tpdu_struct
+from gsm_layer3_protocol.sms_protocol.rp_error_tpdu import sms_deliver_report_tpdu_struct, sms_submit_report_tpdu_struct
 
 
 class RpError(Container):
@@ -19,6 +19,10 @@ rp_error_struct = Struct(
     "rp_cause" / rp_cause_struct,
     "rp_user_data" / Optional(Struct(
         "rp_user_data_iei" / Const(0x41, Byte),
-        "tpdu" / rp_error_tpdu_struct
+        "tpdu" / IfThenElse(
+            this._._.mti == rp_mti.RP_ERROR_MS_TO_N,
+            sms_deliver_report_tpdu_struct,
+            sms_submit_report_tpdu_struct
+        )
     ))
 )
