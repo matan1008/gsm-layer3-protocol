@@ -14,11 +14,11 @@ class RpErrorSmsDeliverReport(Container):
             tp_ud = TpUserData(tp_ud)
         tp_udhi = tp_ud is not None and tp_ud.user_data_header is not None
         super().__init__(tp_mti=tp_mti.SMS_DELIVER_OR_REPORT, tp_udhi=tp_udhi, tp_fcs=tp_fcs, tp_pi=tp_pi,
-                         tp_pid=tp_pid, tp_dcs=tp_dcs, tp_ud=tp_ud)
+                         tp_pid=tp_pid, tp_scts=None, tp_dcs=tp_dcs, tp_ud=tp_ud)
 
 
-rp_error_sms_deliver_report_struct = Prefixed(
-    "sms_deliver_report_length" / Byte,
+rp_error_tpdu_struct = Prefixed(
+    "tpdu_length" / Byte,
     BitStruct(
         Padding(1),
         "tp_udhi" / Flag,
@@ -30,6 +30,17 @@ rp_error_sms_deliver_report_struct = Prefixed(
             "tp_udl" / Flag,
             "tp_dcs" / Flag,
             "tp_pid" / Flag
+        ),
+        "tp_scts" / If(
+            this.tp_mti is tp_mti.SMS_SUBMIT_OR_REPORT,
+            Struct(
+                "year" / BitsSwapped(Hex(Byte)),
+                "month" / BitsSwapped(Hex(Byte)),
+                "day" / BitsSwapped(Hex(Byte)),
+                "hour" / BitsSwapped(Hex(Byte)),
+                "minute" / BitsSwapped(Hex(Byte)),
+                "gmt" / Byte
+            )
         ),
         "tp_pid" / If(this.tp_pi.tp_pid, tp_pid_enum),
         "tp_dcs" / If(this.tp_pi.tp_dcs, Octet),  # TODO: Make it a nice structure or enum

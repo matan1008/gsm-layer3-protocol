@@ -91,7 +91,7 @@ def test_parsing_rp_error_with_short_rp_user_data():
                     },
                     "rp_user_data": {
                         "rp_user_data_iei": 0x41,
-                        "sms_deliver_report": {
+                        "tpdu": {
                             "tp_udhi": False,
                             "tp_mti": tp_mti.SMS_DELIVER_OR_REPORT,
                             "tp_fcs": tp_fcs.ERROR_IN_MS,
@@ -100,6 +100,7 @@ def test_parsing_rp_error_with_short_rp_user_data():
                                 "tp_dcs": False,
                                 "tp_pid": False
                             },
+                            "tp_scts": None,
                             "tp_dcs": None,
                             "tp_pid": None,
                             "tp_ud": None,
@@ -142,7 +143,7 @@ def test_parsing_rp_error_full():
                            },
                            "rp_user_data": {
                                "rp_user_data_iei": 0x41,
-                               "sms_deliver_report": {
+                               "tpdu": {
                                    "tp_udhi": True,
                                    "tp_mti": tp_mti.SMS_DELIVER_OR_REPORT,
                                    "tp_fcs": tp_fcs.INVALID_SME_ADDRESS,
@@ -151,6 +152,7 @@ def test_parsing_rp_error_full():
                                        "tp_dcs": True,
                                        "tp_pid": True
                                    },
+                                   "tp_scts": None,
                                    "tp_dcs": 0x80,
                                    "tp_pid": tp_pid.IMPLICIT,
                                    "tp_ud": {
