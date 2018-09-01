@@ -4,7 +4,7 @@ from gsm_layer3_protocol.l3_message import L3Message
 from gsm_layer3_protocol.sms_protocol.cp_data import CpData
 from gsm_layer3_protocol.sms_protocol.rp_error import RpError
 from gsm_layer3_protocol.sms_protocol.rp_cause import RpCause
-from gsm_layer3_protocol.sms_protocol.rp_error_tpdu import RpErrorSmsDeliverReport
+from gsm_layer3_protocol.sms_protocol.rp_error_tpdu import RpErrorSmsDeliverReport, RpErrorSmsSubmitReport, TpScts
 from gsm_layer3_protocol.sms_protocol.tp_user_data import TpUserData, TpUserDataHeader, TpUserDataHeaderElement
 
 
@@ -72,7 +72,7 @@ def test_building_rp_error_with_diagnostic_field():
     )) == b"\x39\x01\x05\x04\x01\x02\x0a\xaa"
 
 
-def test_parsing_rp_error_with_short_rp_user_data():
+def test_parsing_rp_error_with_short_rp_user_data_deliver():
     assert parse(b"\x29\x01\x09\x05\x04\x01\x01\x41\x03\x00\xd2\x00") == {
         "transaction_identifier": 2,
         "protocol_discriminator": protocol_discriminator.SMS,
@@ -112,7 +112,7 @@ def test_parsing_rp_error_with_short_rp_user_data():
     }
 
 
-def test_building_rp_error_with_short_rp_user_data():
+def test_building_rp_error_with_short_rp_user_data_deliver():
     assert build(L3Message(
         3,
         protocol_discriminator.SMS,
@@ -121,6 +121,65 @@ def test_building_rp_error_with_short_rp_user_data():
             RpError(1, rp_cause.CALL_BARRED, RpErrorSmsDeliverReport(tp_fcs.SC_BUSY))
         )
     )) == b"\x39\x01\x09\x04\x01\x01\x0a\x41\x03\x00\xc0\x00"
+
+
+def test_parsing_rp_error_with_short_rp_user_data_submit():
+    assert parse(b"\x29\x01\x10\x04\x04\x01\x01\x41\x0a\x01\xd2\x00\x81\x90\x10\x32\x60\x00\x8a") == {
+        "transaction_identifier": 2,
+        "protocol_discriminator": protocol_discriminator.SMS,
+        "l3_protocol": {
+            "message_type": message_type.CP_DATA,
+            "cp_layer_protocol": {
+                "length_indicator": 2,
+                "spare": None,
+                "mti": rp_mti.RP_ERROR_MS_TO_N,
+                "rp": {
+                    "message_reference": 4,
+                    "rp_cause": {
+                        "ext": None,
+                        "cause_value": rp_cause.UNASSIGNED_NUMBER,
+                        "diagnostic_field": None
+                    },
+                    "rp_user_data": {
+                        "rp_user_data_iei": 0x41,
+                        "tpdu": {
+                            "tp_udhi": False,
+                            "tp_mti": tp_mti.SMS_SUBMIT_OR_REPORT,
+                            "tp_fcs": tp_fcs.ERROR_IN_MS,
+                            "tp_pi": {
+                                "tp_udl": False,
+                                "tp_dcs": False,
+                                "tp_pid": False
+                            },
+                            "tp_scts": {
+                                "year": 18,
+                                "month": 9,
+                                "day": 1,
+                                "hour": 23,
+                                "minute": 6,
+                                "second": 0,
+                                "gmt": -7
+                            },
+                            "tp_dcs": None,
+                            "tp_pid": None,
+                            "tp_ud": None,
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+def test_building_rp_error_with_short_rp_user_data_submit():
+    assert build(L3Message(
+        3,
+        protocol_discriminator.SMS,
+        CpData(
+            rp_mti.RP_ERROR_MS_TO_N,
+            RpError(1, rp_cause.CALL_BARRED, RpErrorSmsSubmitReport(tp_fcs.SC_BUSY, TpScts(18, 9, 1, 23, 6, 0, 2)))
+        )
+    )) == b"\x39\x01\x10\x04\x01\x01\x0a\x41\x0a\x01\xc0\x00\x81\x90\x10\x32\x60\x00\x80"
 
 
 def test_parsing_rp_error_full():
