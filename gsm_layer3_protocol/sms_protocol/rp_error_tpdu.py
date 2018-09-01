@@ -17,6 +17,20 @@ class RpErrorSmsDeliverReport(Container):
                          tp_pid=tp_pid, tp_scts=None, tp_dcs=tp_dcs, tp_ud=tp_ud)
 
 
+class GmtAdapter(Adapter):
+    def _decode(self, obj, context, path):
+        sign = "-" if obj & 0x08 else "+"
+        tz = ((obj & 0x07) * 10 + ((obj & 0xf0) >> 4)) / 4.0
+        return "{}{}".format(sign, tz)
+
+    def _encode(self, obj, context, path):
+        if obj[0] not in ("+", "-"):
+            raise ValueError("GMT missing sign")
+        sign = 0 if obj[0] == "+" else 0x08
+        tz_min = int(float(obj[1:]) * 4.0)
+        return ((int(tz_min / 10) & 0x07) + ((tz_min % 10) << 4)) | sign
+
+
 rp_error_tpdu_struct = Prefixed(
     "tpdu_length" / Byte,
     BitStruct(
@@ -39,7 +53,7 @@ rp_error_tpdu_struct = Prefixed(
                 "day" / BitsSwapped(Hex(Byte)),
                 "hour" / BitsSwapped(Hex(Byte)),
                 "minute" / BitsSwapped(Hex(Byte)),
-                "gmt" / Byte
+                "gmt" / GmtAdapter(Byte)
             )
         ),
         "tp_pid" / If(this.tp_pi.tp_pid, tp_pid_enum),
