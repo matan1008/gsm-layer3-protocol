@@ -8,7 +8,7 @@ class L3Message(Container):
         """
         Container for a generic layer 3 message.
         :param int transaction_identifier: A transaction identifier.
-        :param Enum protocol_discriminator: Any value of protocol_discriminator enum.
+        :param EnumIntegerString protocol_discriminator: Any value of protocol_discriminator enum.
         :param Container l3_protocol: Data relevant for the protocol specified.
         """
         super().__init__(
