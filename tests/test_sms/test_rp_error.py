@@ -4,7 +4,8 @@ from gsm_layer3_protocol.l3_message import L3Message
 from gsm_layer3_protocol.sms_protocol.cp_data import CpData
 from gsm_layer3_protocol.sms_protocol.rp_error import RpError
 from gsm_layer3_protocol.sms_protocol.rp_cause import RpCause
-from gsm_layer3_protocol.sms_protocol.rp_error_tpdu import RpErrorSmsDeliverReport, RpErrorSmsSubmitReport
+from gsm_layer3_protocol.sms_protocol.sms_submit_report_rp_error import RpErrorSmsSubmitReport
+from gsm_layer3_protocol.sms_protocol.sms_deliver_report_rp_error import RpErrorSmsDeliverReport
 from gsm_layer3_protocol.sms_protocol.tp_user_data import TpUserData, TpUserDataHeader, TpUserDataHeaderElement
 from gsm_layer3_protocol.sms_protocol.tpdu_parameters import TpScts
 
