@@ -3,7 +3,8 @@ from gsm_layer3_protocol.enums import *
 from gsm_layer3_protocol.l3_message import L3Message
 from gsm_layer3_protocol.sms_protocol.cp_data import CpData
 from gsm_layer3_protocol.sms_protocol.rp_ack import RpAck
-from gsm_layer3_protocol.sms_protocol.rp_ack_tpdu import RpAckSmsDeliverReport, RpAckSmsSubmitReport
+from gsm_layer3_protocol.sms_protocol.sms_submit_report_rp_ack import RpAckSmsSubmitReport
+from gsm_layer3_protocol.sms_protocol.sms_deliver_report_rp_ack import RpAckSmsDeliverReport
 from gsm_layer3_protocol.sms_protocol.tp_user_data import TpUserData, TpUserDataHeader, TpUserDataHeaderElement
 from gsm_layer3_protocol.sms_protocol.tpdu_parameters import TpScts
 
