@@ -150,7 +150,7 @@ def test_building_rp_ack_with_short_rp_user_data_submit():
 
 def test_parsing_rp_ack_full():
     assert parse(
-        b"\x29\x01\x18\x02\x04\x41\x14\x40\x07\x20\x80\x0f\x03\x01\x01\xff\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b") == {
+        b"\x29\x01\x19\x02\x04\x41\x15\x40\x07\x20\x80\x10\x04\x01\x02\xff\xff\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b") == {
                "transaction_identifier": 2,
                "protocol_discriminator": protocol_discriminator.SMS,
                "l3_protocol": {
@@ -177,7 +177,7 @@ def test_parsing_rp_ack_full():
                                    "tp_ud": {
                                        "user_data_header": [
                                            {"element_type": tp_udh_elements.SPECIAL_SMS_MESSAGE,
-                                            "element_data": b"\xff"}
+                                            "element_data": b"\xff\xff"}
                                        ],
                                        "user_data": b"\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b"
                                    }
