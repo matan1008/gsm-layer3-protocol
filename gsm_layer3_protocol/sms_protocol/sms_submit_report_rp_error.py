@@ -18,18 +18,15 @@ class RpErrorSmsSubmitReport(Container):
                          tp_scts=tp_scts, tp_pid=tp_pid, tp_dcs=tp_dcs, tp_ud=tp_ud)
 
 
-sms_submit_report_tpdu_struct = Prefixed(
-    "tpdu_length" / Byte,
-    BitStruct(
-        Padding(1),
-        "tp_udhi" / tpdu_parameters.tp_udhi,
-        Padding(4),
-        "tp_mti" / tpdu_parameters.tp_mti,
-        "tp_fcs" / tpdu_parameters.tp_fcs,
-        "tp_pi" / tpdu_parameters.tp_pi,
-        "tp_scts" / tpdu_parameters.tp_scts,
-        "tp_pid" / If(this.tp_pi.tp_pid, tpdu_parameters.tp_pid),
-        "tp_dcs" / If(this.tp_pi.tp_dcs, tpdu_parameters.tp_dcs),
-        "tp_ud" / If(this.tp_pi.tp_udl, Bytewise(tp_ud_struct))
-    )
+sms_submit_report_tpdu_struct = BitStruct(
+    Padding(1),
+    "tp_udhi" / tpdu_parameters.tp_udhi,
+    Padding(4),
+    "tp_mti" / Const(tp_mti_enum.SMS_SUBMIT_OR_REPORT, tpdu_parameters.tp_mti),
+    "tp_fcs" / tpdu_parameters.tp_fcs,
+    "tp_pi" / tpdu_parameters.tp_pi,
+    "tp_scts" / tpdu_parameters.tp_scts,
+    "tp_pid" / If(this.tp_pi.tp_pid, tpdu_parameters.tp_pid),
+    "tp_dcs" / If(this.tp_pi.tp_dcs, tpdu_parameters.tp_dcs),
+    "tp_ud" / If(this.tp_pi.tp_udl, Bytewise(tp_ud_struct))
 )

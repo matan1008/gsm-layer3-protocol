@@ -13,10 +13,13 @@ rp_ack_struct = Struct(
     "message_reference" / Byte,
     "rp_user_data" / Optional(Struct(
         "rp_user_data_iei" / Const(0x41, Byte),
-        "tpdu" / IfThenElse(
-            this._._.mti == rp_mti.RP_ACK_MS_TO_N,
-            sms_deliver_report_tpdu_struct,
-            sms_submit_report_tpdu_struct
+        "tpdu" / Prefixed(
+            "tpdu_length" / Byte,
+            IfThenElse(
+                this._._.mti == rp_mti.RP_ACK_MS_TO_N,
+                sms_deliver_report_tpdu_struct,
+                sms_submit_report_tpdu_struct
+            )
         )
     ))
 )
