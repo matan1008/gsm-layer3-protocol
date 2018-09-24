@@ -1,5 +1,7 @@
 from construct import *
-from gsm_layer3_protocol.enums import tp_mti as tp_mti_enum, tp_fcs as tp_fcs_enum, tp_pid as tp_pid_enum
+from gsm_layer3_protocol.enums import tp_mti as tp_mti_enum, tp_fcs as tp_fcs_enum, tp_pid as tp_pid_enum, \
+    tp_st as tp_st_enum, tp_srq as tp_srq_enum, tp_lp as tp_lp_enum
+from gsm_layer3_protocol.sms_protocol.called_party_bcd_address import bcd_address
 
 
 class TpScts(Container):
@@ -27,15 +29,11 @@ class GmtAdapter(Adapter):
         return ((int(tz_min / 10) & 0x07) + ((tz_min % 10) << 4)) | sign
 
 
-tp_udhi = Flag
 tp_mti = tp_mti_enum
-tp_fcs = tp_fcs_enum
-tp_pi = Struct(
-    Padding(5),
-    "tp_udl" / Flag,
-    "tp_dcs" / Flag,
-    "tp_pid" / Flag
-)
+tp_mms = Flag
+tp_mr = Octet
+tp_pid = tp_pid_enum
+tp_dcs = Octet  # TODO: Make it a nice structure or enum
 tp_scts = Bytewise(Struct(
     "year" / DigitNibblesAdapter(Byte),
     "month" / DigitNibblesAdapter(Byte),
@@ -45,5 +43,24 @@ tp_scts = Bytewise(Struct(
     "second" / DigitNibblesAdapter(Byte),
     "gmt" / GmtAdapter(Byte)
 ))
-tp_pid = tp_pid_enum
-tp_dcs = Octet # TODO: Make it a nice structure or enum
+tp_dt = Bytewise(Struct(
+    "year" / DigitNibblesAdapter(Byte),
+    "month" / DigitNibblesAdapter(Byte),
+    "day" / DigitNibblesAdapter(Byte),
+    "hour" / DigitNibblesAdapter(Byte),
+    "minute" / DigitNibblesAdapter(Byte),
+    "second" / DigitNibblesAdapter(Byte),
+    "gmt" / GmtAdapter(Byte)
+))
+tp_ra = bcd_address
+tp_st = tp_st_enum
+tp_fcs = tp_fcs_enum
+tp_udhi = Flag
+tp_srq = tp_srq_enum
+tp_pi = Struct(
+    Padding(5),
+    "tp_udl" / Flag,
+    "tp_dcs" / Flag,
+    "tp_pid" / Flag
+)
+tp_lp = tp_lp_enum
