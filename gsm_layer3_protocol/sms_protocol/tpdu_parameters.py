@@ -1,6 +1,5 @@
 from construct import *
-from gsm_layer3_protocol.enums import tp_mti as tp_mti_enum, tp_fcs as tp_fcs_enum, tp_pid as tp_pid_enum, \
-    tp_st as tp_st_enum, tp_srq as tp_srq_enum, tp_lp as tp_lp_enum
+import gsm_layer3_protocol.enums as enums
 from gsm_layer3_protocol.sms_protocol.called_party_bcd_address import bcd_address
 
 
@@ -29,10 +28,12 @@ class GmtAdapter(Adapter):
         return ((int(tz_min / 10) & 0x07) + ((tz_min % 10) << 4)) | sign
 
 
-tp_mti = tp_mti_enum
+tp_mti = enums.tp_mti
 tp_mms = Flag
+tp_srr = enums.tp_srr
 tp_mr = Octet
-tp_pid = tp_pid_enum
+tp_da = bcd_address
+tp_pid = enums.tp_pid
 tp_dcs = Octet  # TODO: Make it a nice structure or enum
 tp_scts = Bytewise(Struct(
     "year" / DigitNibblesAdapter(Byte),
@@ -53,14 +54,16 @@ tp_dt = Bytewise(Struct(
     "gmt" / GmtAdapter(Byte)
 ))
 tp_ra = bcd_address
-tp_st = tp_st_enum
-tp_fcs = tp_fcs_enum
+tp_st = enums.tp_st
+tp_mn = Octet
+tp_ct = enums.tp_ct
+tp_fcs = enums.tp_fcs
 tp_udhi = Flag
-tp_srq = tp_srq_enum
+tp_srq = enums.tp_srq
 tp_pi = Struct(
     Padding(5),
     "tp_udl" / Flag,
     "tp_dcs" / Flag,
     "tp_pid" / Flag
 )
-tp_lp = tp_lp_enum
+tp_lp = enums.tp_lp

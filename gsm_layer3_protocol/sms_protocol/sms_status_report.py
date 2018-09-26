@@ -17,7 +17,6 @@ class SmsStatusReport(Container):
         if isinstance(tp_ud, bytes):
             tp_ud = TpUserData(tp_ud)
         tp_udhi = tp_ud is not None and tp_ud.user_data_header is not None
-
         super().__init__(tp_mti=tp_mti_enum.SMS_STATUS_OR_COMMAND, tp_mms=tp_mms, tp_lp=tp_lp, tp_srq=tp_srq,
                          tp_udhi=tp_udhi, tp_mr=tp_mr, tp_ra=tp_ra, tp_scts=tp_scts, tp_dt=tp_dt, tp_st=tp_st,
                          tp_pi=tp_pi, tp_pid=tp_pid, tp_dcs=tp_dcs, tp_ud=tp_ud)
