@@ -22,7 +22,7 @@ sms_deliver_tpdu_struct = BitStruct(
     Padding(1),
     "tp_lp" / tpdu_parameters.tp_lp,
     "tp_mms" / tpdu_parameters.tp_mms,
-    "tp_mti" / Const(tp_mti_enum.SMS_SUBMIT_OR_REPORT, tpdu_parameters.tp_mti),
+    "tp_mti" / Const(tp_mti_enum.SMS_DELIVER_OR_REPORT, tpdu_parameters.tp_mti),
     "tp_oa" / tpdu_parameters.tp_oa,
     "tp_pid" / tpdu_parameters.tp_pid,
     "tp_dcs" / tpdu_parameters.tp_dcs,
