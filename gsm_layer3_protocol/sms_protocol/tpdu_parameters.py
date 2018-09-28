@@ -90,10 +90,12 @@ class RelativeTpVpAdapter(Adapter):
 
 
 tp_mti = enums.tp_mti
-tp_mms = Flag
+tp_mms = enums.tp_mms
 tp_vpf = enums.tp_vpf
+tp_sri = enums.tp_sri
 tp_srr = enums.tp_srr
 tp_mr = Octet
+tp_oa = bcd_address
 tp_da = bcd_address
 tp_pid = enums.tp_pid
 tp_dcs = Octet  # TODO: Make it a nice structure or enum
