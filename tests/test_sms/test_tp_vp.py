@@ -1,7 +1,8 @@
 from datetime import timedelta
 import pytest
 from construct import Byte
-from gsm_layer3_protocol.sms_protocol.tpdu_parameters import RelativeTpVpAdapter, tp_vp_enhanced, TpVpEnhancedSemiOctet, \
+from gsm_layer3_protocol.sms_protocol.tpdu_parameters import \
+    RelativeTpVpAdapter, tp_vp_enhanced, TpVpEnhancedSemiOctet, \
     TpVpEnhanced
 
 
@@ -27,9 +28,15 @@ def test_parsing_relative_validity_period(data, time_in_seconds):
 
 def test_building_enhanced_semi_octet():
     assert tp_vp_enhanced.build(
-        TpVpEnhanced(False, False, TpVpEnhancedSemiOctet(5, 3, 30))) == b"\x03\x50\x30\x03\x00\x00\x00"
+        TpVpEnhanced(
+            False,
+            False,
+            TpVpEnhancedSemiOctet(5, 3, 30)
+        )
+    ) == b"\x03\x50\x30\x03\x00\x00\x00"
 
 
 def test_parsing_enhanced_semi_octet():
-    assert tp_vp_enhanced.parse(b"\x03\x50\x30\x03\x00\x00\x00") == TpVpEnhanced(False, False,
-                                                                                 TpVpEnhancedSemiOctet(5, 3, 30))
+    assert tp_vp_enhanced.parse(
+        b"\x03\x50\x30\x03\x00\x00\x00"
+    ) == TpVpEnhanced(False, False, TpVpEnhancedSemiOctet(5, 3, 30))

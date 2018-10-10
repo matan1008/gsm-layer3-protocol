@@ -15,4 +15,5 @@ def test_parsing_cp_ack():
 
 
 def test_building_cp_ack():
-    assert build(L3Message(1, protocol_discriminator.SMS, CpAck())) == b"\x19\x04"
+    assert build(
+        L3Message(1, protocol_discriminator.SMS, CpAck())) == b"\x19\x04"
