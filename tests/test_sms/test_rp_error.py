@@ -7,7 +7,7 @@ from gsm_layer3_protocol.sms_protocol.rp_cause import RpCause
 from gsm_layer3_protocol.sms_protocol.sms_submit_report_rp_error import RpErrorSmsSubmitReport
 from gsm_layer3_protocol.sms_protocol.sms_deliver_report_rp_error import RpErrorSmsDeliverReport
 from gsm_layer3_protocol.sms_protocol.tp_user_data import TpUserData, TpUserDataHeader, TpUserDataHeaderElement
-from gsm_layer3_protocol.sms_protocol.tpdu_parameters import TpScts
+from gsm_layer3_protocol.sms_protocol.tpdu_parameters import TpScts, TpDcsGeneralDataCodingIndicationNoMessageClass
 
 
 def test_parsing_minimal_rp_error():
@@ -186,7 +186,7 @@ def test_building_rp_error_with_short_rp_user_data_submit():
 
 def test_parsing_rp_error_full():
     assert parse(
-        b"\x29\x01\x1c\x04\x04\x02\x01\x81\x41\x15\x40\xc3\x07\x20\x80\x0f\x03\x01\x01\xff\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b") == {
+        b"\x29\x01\x1c\x04\x04\x02\x01\x81\x41\x15\x40\xc3\x07\x20\x04\x0f\x03\x01\x01\xff\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b") == {
                "transaction_identifier": 2,
                "protocol_discriminator": protocol_discriminator.SMS,
                "l3_protocol": {
@@ -213,8 +213,11 @@ def test_parsing_rp_error_full():
                                        "tp_dcs": True,
                                        "tp_pid": True
                                    },
-                                   "tp_scts": None,
-                                   "tp_dcs": 0x80,
+                                   "tp_dcs": {
+                                       "coding_group": dcs_coding_groups.GENERAL_DATA_CODING_INDICATION,
+                                       "character_set": dcs_character_set.DATA_8BIT,
+                                       "compressed": False
+                                   },
                                    "tp_pid": tp_pid.IMPLICIT,
                                    "tp_ud": {
                                        "user_data_header": [
@@ -240,15 +243,16 @@ def test_building_rp_error_full():
             RpError(
                 1,
                 RpCause(rp_cause.PROTOCOL_ERROR, 0x44),
-                RpErrorSmsDeliverReport(tp_fcs.SIM_APPLICATION_TOOLKIT_BUSY, tp_pid.X_400_BASED, 0x00,
+                RpErrorSmsDeliverReport(tp_fcs.SIM_APPLICATION_TOOLKIT_BUSY, tp_pid.X_400_BASED,
+                                        TpDcsGeneralDataCodingIndicationNoMessageClass(),
                                         TpUserData(
-                                            b"\xdd\xcc\xbb\xaa",
+                                            "This is Part 2.",
                                             TpUserDataHeader(TpUserDataHeaderElement(
-                                                tp_udh_elements.SMALL_ANIMATION,
-                                                b"\x11\x22\x33"
+                                                tp_udh_elements.CONCATENATED_SHORT_MESSAGES_8_BIT,
+                                                b"\x03\x02\x02"
                                             ))
                                         )
                                         )
             )
         )
-    )) == b"\x39\x01\x17\x04\x01\x02\x6f\x44\x41\x10\x40\xd4\x07\x31\x00\x0a\x05\x0f\x03\x11\x22\x33\xdd\xcc\xbb\xaa"
+    )) == b"\x39\x01\x21\x04\x01\x02\x6f\x44\x41\x1a\x40\xd4\x07\x31\x00\x16\x05\x00\x03\x03\x02\x02\xa8\xe8\xf4\x1c\x94\x9e\x83\xa0\x61\x39\x1d\x24\x73\x01"

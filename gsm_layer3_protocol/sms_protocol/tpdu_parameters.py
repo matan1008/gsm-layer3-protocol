@@ -44,6 +44,48 @@ class TpVpEnhanced(Container):
                          _tp_vpf=enums.tp_vpf.ENHANCED_FORMAT)
 
 
+class TpDcsGeneralDataCodingIndicationNoMessageClass(Container):
+    def __init__(self):
+        super().__init__(coding_group=enums.dcs_coding_groups.GENERAL_DATA_CODING_INDICATION,
+                         character_set=enums.dcs_character_set.GSM_7)
+
+
+class TpDcsGeneralDataCodingIndication(Container):
+    def __init__(self, compressed, character_set, message_class=None):
+        super().__init__(coding_group=enums.dcs_coding_groups.GENERAL_DATA_CODING_INDICATION, compressed=compressed,
+                         character_set=character_set, message_class=message_class)
+
+
+class TpDcsMessageMarkedForAutomaticDeletionGroup(Container):
+    def __init__(self, compressed, character_set, message_class=None):
+        super().__init__(coding_group=enums.dcs_coding_groups.MESSAGE_MARKED_FOR_AUTOMATIC_DELETION_GROUP,
+                         compressed=compressed, character_set=character_set, message_class=message_class)
+
+
+class TpDcsDiscardMessage(Container):
+    def __init__(self, indication_sense, indication_type):
+        super().__init__(coding_group=enums.dcs_coding_groups.DISCARD_MESSAGE, indication_sense=indication_sense,
+                         indication_type=indication_type)
+
+
+class TpDcsStoreMessageGsm7(Container):
+    def __init__(self, indication_sense, indication_type):
+        super().__init__(coding_group=enums.dcs_coding_groups.STORE_MESSAGE_GSM7, indication_sense=indication_sense,
+                         indication_type=indication_type)
+
+
+class TpDcsStoreMessageUcs2(Container):
+    def __init__(self, indication_sense, indication_type):
+        super().__init__(coding_group=enums.dcs_coding_groups.STORE_MESSAGE_UCS2, indication_sense=indication_sense,
+                         indication_type=indication_type)
+
+
+class TpDcsDataCodingMessageClass(Container):
+    def __init__(self, character_set, message_class):
+        super().__init__(coding_group=enums.dcs_coding_groups.DATA_CODING_MESSAGE_CLASS, character_set=character_set,
+                         message_class=message_class)
+
+
 class DigitNibblesAdapter(Adapter):
     def _decode(self, obj, context, path):
         return (obj & 0x0f) * 10 + ((obj & 0xf0) >> 4)
@@ -89,16 +131,62 @@ class RelativeTpVpAdapter(Adapter):
             return int((obj / timedelta(days=7).total_seconds()) + 192)
 
 
+class TpDcsAdapter(Adapter):
+    def _decode(self, obj, context, path):
+        c = Container()
+        if obj == 0:
+            c.character_set = enums.dcs_character_set.GSM_7
+            c.coding_group = enums.dcs_coding_groups.GENERAL_DATA_CODING_INDICATION
+        elif (obj & 0xc0) >> 6 in (0, 1):
+            c.compressed = bool(obj & 0b00100000)
+            c.character_set = enums.dcs_character_set.decmapping[(obj & 0b00001100) >> 2]
+            if obj & 0b00010000:
+                c.message_class = obj & 0b00000011
+            c.coding_group = enums.dcs_coding_groups.decmapping[(obj & 0b11000000) >> 6]
+        elif (obj & 0xf0) >> 4 in (0xc, 0xd, 0xe):
+            c.indication_sense = bool(obj & 0b00001000)
+            c.indication_type = enums.dcs_indication_type.decmapping[obj & 0x3]
+            c.character_set = (enums.dcs_character_set.UCS2
+                               if (obj & 0xf0) >> 4 == 0xe
+                               else enums.dcs_character_set.GSM_7)
+            c.coding_group = enums.dcs_coding_groups.decmapping[(obj & 0xf0) >> 4]
+        elif (obj & 0xf0) >> 4 == 0xf:
+            c.character_set = enums.dcs_character_set.DATA_8BIT if (obj & 0b00000100) else enums.dcs_character_set.GSM_7
+            c.message_class = obj & 0b00000011
+            c.coding_group = enums.dcs_coding_groups.DATA_CODING_MESSAGE_CLASS
+        return c
+
+    def _encode(self, obj, context, path):
+        if obj.coding_group == enums.dcs_coding_groups.GENERAL_DATA_CODING_INDICATION and obj.get("compressed") is None:
+            return 0
+        elif obj.coding_group in (enums.dcs_coding_groups.GENERAL_DATA_CODING_INDICATION,
+                                  enums.dcs_coding_groups.MESSAGE_MARKED_FOR_AUTOMATIC_DELETION_GROUP):
+            return (
+                (int(obj.coding_group) << 6) | (int(obj.compressed) << 5) |
+                (int(obj.get("message_class") is not None) << 4) | (int(obj.character_set) << 2) |
+                (0 if obj.get("message_class") is None else int(obj.message_class))
+            )
+        elif obj.coding_group in (enums.dcs_coding_groups.DISCARD_MESSAGE,
+                                  enums.dcs_coding_groups.STORE_MESSAGE_GSM7,
+                                  enums.dcs_coding_groups.STORE_MESSAGE_UCS2):
+            return (int(obj.coding_group) << 4) | (int(obj.indication_sense) << 3) | (int(obj.indication_type) << 3)
+        elif obj.coding_group == enums.dcs_coding_groups.DATA_CODING_MESSAGE_CLASS:
+            return (
+                (int(obj.coding_group) << 4) | (int(obj.character_set == enums.dcs_character_set.DATA_8BIT) << 4) |
+                obj.message_class
+            )
+
+
 tp_mti = enums.tp_mti
 tp_mms = enums.tp_mms
 tp_vpf = enums.tp_vpf
 tp_sri = enums.tp_sri
 tp_srr = enums.tp_srr
 tp_mr = Octet
-tp_oa = bcd_address
+tp_oa = Bytewise(bcd_address)
 tp_da = bcd_address
 tp_pid = enums.tp_pid
-tp_dcs = Octet  # TODO: Make it a nice structure or enum
+tp_dcs = TpDcsAdapter(Octet)
 tp_scts = Bytewise(Struct(
     "year" / DigitNibblesAdapter(Byte),
     "month" / DigitNibblesAdapter(Byte),

@@ -6,7 +6,7 @@ from gsm_layer3_protocol.sms_protocol.rp_ack import RpAck
 from gsm_layer3_protocol.sms_protocol.sms_submit_report_rp_ack import RpAckSmsSubmitReport
 from gsm_layer3_protocol.sms_protocol.sms_deliver_report_rp_ack import RpAckSmsDeliverReport
 from gsm_layer3_protocol.sms_protocol.tp_user_data import TpUserData, TpUserDataHeader, TpUserDataHeaderElement
-from gsm_layer3_protocol.sms_protocol.tpdu_parameters import TpScts
+from gsm_layer3_protocol.sms_protocol.tpdu_parameters import TpScts, TpDcsGeneralDataCodingIndicationNoMessageClass
 
 
 def test_parsing_rp_ack_to_n():
@@ -151,7 +151,7 @@ def test_building_rp_ack_with_short_rp_user_data_submit():
 
 def test_parsing_rp_ack_full():
     assert parse(
-        b"\x29\x01\x19\x02\x04\x41\x15\x40\x07\x20\x80\x10\x04\x01\x02\xff\xff\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b") == {
+        b"\x29\x01\x1b\x02\x04\x41\x17\x40\x07\x20\x15\x12\x04\x01\x02\xff\xff\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d") == {
                "transaction_identifier": 2,
                "protocol_discriminator": protocol_discriminator.SMS,
                "l3_protocol": {
@@ -172,15 +172,19 @@ def test_parsing_rp_ack_full():
                                        "tp_dcs": True,
                                        "tp_pid": True
                                    },
-                                   "tp_scts": None,
-                                   "tp_dcs": 0x80,
                                    "tp_pid": tp_pid.IMPLICIT,
+                                   "tp_dcs": {
+                                       "coding_group": dcs_coding_groups.GENERAL_DATA_CODING_INDICATION,
+                                       "compressed": False,
+                                       "character_set": dcs_character_set.DATA_8BIT,
+                                       "message_class": 1
+                                   },
                                    "tp_ud": {
                                        "user_data_header": [
                                            {"element_type": tp_udh_elements.SPECIAL_SMS_MESSAGE,
                                             "element_data": b"\xff\xff"}
                                        ],
-                                       "user_data": b"\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b"
+                                       "user_data": b"\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d"
                                    }
                                }
                            }
@@ -191,22 +195,23 @@ def test_parsing_rp_ack_full():
 
 
 def test_building_rp_ack_full():
-    assert build(L3Message(
+    a = build(L3Message(
         3,
         protocol_discriminator.SMS,
         CpData(
             rp_mti.RP_ACK_MS_TO_N,
             RpAck(
                 1,
-                RpAckSmsDeliverReport(tp_pid.X_400_BASED, 0x00,
+                RpAckSmsDeliverReport(tp_pid.X_400_BASED, TpDcsGeneralDataCodingIndicationNoMessageClass(),
                                       TpUserData(
-                                          b"\xdd\xcc\xbb\xaa",
+                                          "This is Part 1.",
                                           TpUserDataHeader(TpUserDataHeaderElement(
-                                              tp_udh_elements.SMALL_ANIMATION,
-                                              b"\x11\x22\x33"
+                                              tp_udh_elements.CONCATENATED_SHORT_MESSAGES_8_BIT,
+                                              b"\x03\x02\x01"
                                           ))
                                       )
                                       )
             )
         )
-    )) == b"\x39\x01\x13\x02\x01\x41\x0f\x40\x07\x31\x00\x0a\x05\x0f\x03\x11\x22\x33\xdd\xcc\xbb\xaa"
+    ))
+    assert a == b"\x39\x01\x1d\x02\x01\x41\x19\x40\x07\x31\x00\x16\x05\x00\x03\x03\x02\x01\xa8\xe8\xf4\x1c\x94\x9e\x83\xa0\x61\x39\x1d\x14\x73\x01"

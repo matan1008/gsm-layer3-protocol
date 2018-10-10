@@ -157,3 +157,19 @@ tp_mms = Enum(
     BitsInteger(1),
     MORE_MESSAGES_ARE_WAITING=0, NO_MORE_MESSAGES_ARE_WAITING=1
 )
+
+dcs_coding_groups = Enum(
+    BitsInteger(4),
+    GENERAL_DATA_CODING_INDICATION=0, MESSAGE_MARKED_FOR_AUTOMATIC_DELETION_GROUP=1,
+    DISCARD_MESSAGE=0xc, STORE_MESSAGE_GSM7=0xd, STORE_MESSAGE_UCS2=0xe, DATA_CODING_MESSAGE_CLASS=0xf
+)
+
+dcs_character_set = Enum(
+    BitsInteger(2),
+    GSM_7=0, DATA_8BIT=1, UCS2=2
+)
+
+dcs_indication_type = Enum(
+    BitsInteger(2),
+    VOICEMAIL=0, FAX=1, ELECTRONIC_MAIL=2, OTHER=3
+)

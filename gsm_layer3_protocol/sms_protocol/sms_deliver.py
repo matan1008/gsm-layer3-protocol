@@ -5,14 +5,15 @@ from gsm_layer3_protocol.sms_protocol.tp_user_data import tp_ud_struct, TpUserDa
 
 
 class SmsDeliver(Container):
-    def __init__(self, tp_rp, tp_sri, tp_lp, tp_mms, tp_oa, tp_pid, tp_dcs, tp_ud=None):
+    def __init__(self, tp_rp, tp_sri, tp_lp, tp_mms, tp_oa, tp_pid, tp_dcs, tp_scts, tp_ud=None):
         if isinstance(tp_ud, bytes):
             tp_ud = TpUserData(tp_ud)
         elif tp_ud is None:
             tp_ud = TpUserData(b"")
         tp_udhi = tp_ud.user_data_header is not None
         super().__init__(tp_mti=tp_mti_enum.SMS_DELIVER_OR_REPORT, tp_rp=tp_rp, tp_udhi=tp_udhi, tp_sri=tp_sri,
-                         tp_lp=tp_lp, tp_mms=tp_mms, tp_oa=tp_oa, tp_pid=tp_pid, tp_dcs=tp_dcs, tp_ud=tp_ud)
+                         tp_lp=tp_lp, tp_mms=tp_mms, tp_oa=tp_oa, tp_pid=tp_pid, tp_dcs=tp_dcs, tp_scts=tp_scts,
+                         tp_ud=tp_ud)
 
 
 sms_deliver_tpdu_struct = BitStruct(
@@ -26,5 +27,6 @@ sms_deliver_tpdu_struct = BitStruct(
     "tp_oa" / tpdu_parameters.tp_oa,
     "tp_pid" / tpdu_parameters.tp_pid,
     "tp_dcs" / tpdu_parameters.tp_dcs,
+    "tp_scts" / tpdu_parameters.tp_scts,
     "tp_ud" / Bytewise(tp_ud_struct)
 )

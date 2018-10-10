@@ -1,6 +1,7 @@
 from enum import Enum
 from itertools import count
-from construct import Adapter, Const, Byte, Prefixed, BitStruct, Padding, Bytewise, GreedyBytes, Container
+from construct import Adapter, Const, Byte, Octet, BitStruct, Padding, Bytewise, GreedyBytes, Container, this, Rebuild, \
+    Prefixed
 from gsm_layer3_protocol.enums import bcd_type_of_number, bcd_number_plan
 
 NumbersEncoding = Enum("NumbersEncoding",
@@ -28,18 +29,25 @@ class BcdAddresAdapter(Adapter):
         return data
 
 
-class BcdAddress(Container):
+class AddressField(Container):
     def __init__(self, type_of_number, number_plan, number):
         super().__init__(type_of_number=type_of_number, number_plan=number_plan, number=number)
 
 
 zero_lengthed_bcd_address = Const(0x00, Byte)
-bcd_address = Prefixed(
-    "address_length" / Byte,
+service_center_address = Prefixed(
+    Byte,
     BitStruct(
         "ext" / Padding(1, b"\x01"),
         "type_of_number" / bcd_type_of_number,
         "number_plan" / bcd_number_plan,
-        "number" / Bytewise(BcdAddresAdapter(GreedyBytes))
+        "number" / Bytewise(BcdAddresAdapter(GreedyBytes)),
     )
+)
+bcd_address = BitStruct(
+    "_number_octets" / Rebuild(Octet, lambda ctx: len(ctx.number)),
+    "ext" / Padding(1, b"\x01"),
+    "type_of_number" / bcd_type_of_number,
+    "number_plan" / bcd_number_plan,
+    "number" / Bytewise(BcdAddresAdapter(Byte[(this._number_octets + (this._number_octets % 2)) // 2])),
 )
