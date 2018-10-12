@@ -25,7 +25,7 @@ sms_submit_tpdu_struct = BitStruct(
     "tp_rd" / tpdu_parameters.tp_rd,
     "tp_mti" / Const(tp_mti_enum.SMS_SUBMIT_OR_REPORT, tpdu_parameters.tp_mti),
     "tp_mr" / tpdu_parameters.tp_mr,
-    "tp_da" / tpdu_parameters.tp_da,
+    "tp_da" / Bytewise(tpdu_parameters.tp_da),
     "tp_pid" / tpdu_parameters.tp_pid,
     "tp_dcs" / tpdu_parameters.tp_dcs,
     "tp_vp" / Switch(
