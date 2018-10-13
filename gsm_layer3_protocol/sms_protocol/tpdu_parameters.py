@@ -8,6 +8,10 @@ class TpScts(Container):
     def __init__(self, year, month, day, hour, minute, second, gmt):
         super().__init__(year=year, month=month, day=day, hour=hour, minute=minute, second=second, gmt=gmt)
 
+class TpDt(Container):
+    def __init__(self, year, month, day, hour, minute, second, gmt):
+        super().__init__(year=year, month=month, day=day, hour=hour, minute=minute, second=second, gmt=gmt)
+
 
 class TpVpAbsolute(Container):
     def __init__(self, year, month, day, hour, minute, second, gmt):
