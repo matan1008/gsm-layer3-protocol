@@ -1,6 +1,6 @@
 from construct import *
 import gsm_layer3_protocol.sms_protocol.tpdu_parameters as tpdu_parameters
-from gsm_layer3_protocol.enums import tp_mti as tp_mti_enum
+from gsm_layer3_protocol.enums import tp_mti as tp_mti_enum, dcs_character_set
 from gsm_layer3_protocol.sms_protocol.tp_user_data import tp_ud_struct, \
     TpUserData
 
@@ -42,6 +42,10 @@ sms_status_report_tpdu_struct = BitStruct(
     "tp_st" / tpdu_parameters.tp_st,
     "tp_pi" / Optional(tpdu_parameters.tp_pi),
     "tp_pid" / If(this.tp_pi.tp_pid, tpdu_parameters.tp_pid),
-    "tp_dcs" / If(this.tp_pi.tp_dcs, tpdu_parameters.tp_dcs),
+    "tp_dcs" / IfThenElse(
+        this.tp_pi.tp_dcs,
+        tpdu_parameters.tp_dcs,
+        Struct("character_set" / Computed(dcs_character_set.GSM_7))
+    ),
     "tp_ud" / If(this.tp_pi.tp_udl, Bytewise(tp_ud_struct)),
 )
