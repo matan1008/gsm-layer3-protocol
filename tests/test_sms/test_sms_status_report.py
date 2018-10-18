@@ -363,3 +363,104 @@ def test_parsing_sms_status_report_without_dcs():
                    }
                }
            }
+
+
+def test_building_sms_status_report_without_optionals():
+    sms_status_report = SmsStatusReport(
+        tp_srq.SMS_SUBMIT,
+        tp_lp.NOT_FORWARDED_OR_SPAWNED,
+        tp_mms.NO_MORE_MESSAGES_ARE_WAITING,
+        0xcc,
+        AddressField(
+            number_type.INTERNATIONAL_NUMBER,
+            plan.UNKNOWN,
+            "*3639"
+        ),
+        TpScts(18, 9, 1, 23, 6, 0, 2),
+        TpDt(18, 9, 1, 23, 0, 0, 2),
+        tp_st.SHORT_MESSAGE_RECEIVED_BY_THE_SME
+    )
+    assert build(L3Message(
+        3,
+        protocol_discriminator.SMS,
+        CpData(rp_mti.RP_DATA_N_TO_MS, RpDataNToMs(
+            1,
+            AddressField(
+                number_type.INTERNATIONAL_NUMBER,
+                plan.UNKNOWN,
+                "123456"
+            ),
+            sms_status_report
+        ))
+    )) == (b"\x39\x01\x20\x01\x01\x04\x90\x21\x43\x65\x00\x17\x06\xcc\x05\x90"
+           b"\x3a\x36\xf9\x81\x90\x10\x32\x60\x00\x80\x81\x90\x10\x32\x00\x00"
+           b"\x80\x00\x00")
+
+
+def test_parsing_sms_status_report_without_optionals():
+    assert parse(b"\x39\x01\x20\x01\x01\x04\x90\x21\x43\x65\x00\x17\x06\xcc"
+                 b"\x05\x90\x3a\x36\xf9\x81\x90\x10\x32\x60\x00\x80\x81\x90"
+                 b"\x10\x32\x00\x00\x80\x00\x00") == {
+               "transaction_identifier": 3,
+               "protocol_discriminator": protocol_discriminator.SMS,
+               "l3_protocol": {
+                   "message_type": message_type.CP_DATA,
+                   "cp_layer_protocol": {
+                       "spare": None,
+                       "mti": rp_mti.RP_DATA_N_TO_MS,
+                       "rp": {
+                           "message_reference": 1,
+                           "rp_originator_address": {
+                               "ext": None,
+                               "number": "123456",
+                               "number_plan": plan.UNKNOWN,
+                               "type_of_number": number_type.INTERNATIONAL_NUMBER
+                           },
+                           "rp_destination_address": 0,
+                           "rp_user_data": {"tpdu": {
+                               "tp_udhi": False,
+                               "tp_srq": tp_srq.SMS_SUBMIT,
+                               "tp_lp": tp_lp.NOT_FORWARDED_OR_SPAWNED,
+                               "tp_mms": tp_mms.NO_MORE_MESSAGES_ARE_WAITING,
+                               "tp_mti": tp_mti.SMS_STATUS_OR_COMMAND,
+                               "tp_mr": 0xcc,
+                               "tp_ra": {
+                                   "ext": None,
+                                   "number": "*3639",
+                                   "number_plan": plan.UNKNOWN,
+                                   "type_of_number": number_type.INTERNATIONAL_NUMBER
+                               },
+                               "tp_scts": {
+                                   "day": 1,
+                                   "gmt": 2.0,
+                                   "hour": 23,
+                                   "minute": 6,
+                                   "month": 9,
+                                   "second": 0,
+                                   "year": 18
+                               },
+                               "tp_dt": {
+                                   "day": 1,
+                                   "gmt": 2.0,
+                                   "hour": 23,
+                                   "minute": 0,
+                                   "month": 9,
+                                   "second": 0,
+                                   "year": 18
+                               },
+                               "tp_st": tp_st.SHORT_MESSAGE_RECEIVED_BY_THE_SME,
+                               "tp_pi": {
+                                   "tp_udl": False,
+                                   "tp_dcs": False,
+                                   "tp_pid": False,
+                               },
+                               "tp_pid": None,
+                               "tp_dcs": {
+                                   "character_set": dcs_character_set.GSM_7,
+                               },
+                               "tp_ud": None
+                           }}
+                       }
+                   }
+               }
+           }

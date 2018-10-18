@@ -43,6 +43,7 @@ sms_status_report_tpdu_struct = BitStruct(
     "tp_pi" / Optional(tpdu_parameters.tp_pi),
     "tp_pid" / If(this.tp_pi.tp_pid, tpdu_parameters.tp_pid),
     "tp_dcs" / IfThenElse(
+        # TODO: Don't insert dcs if tp_ud doesn't exist
         this.tp_pi.tp_dcs,
         tpdu_parameters.tp_dcs,
         Struct("character_set" / Computed(dcs_character_set.GSM_7))
