@@ -23,7 +23,7 @@ sms_command_tpdu_struct = BitStruct(
     "tp_pid" / tpdu_parameters.tp_pid,
     "tp_ct" / tpdu_parameters.tp_ct,
     "tp_mn" / tpdu_parameters.tp_mn,
-    "tp_da" / tpdu_parameters.tp_da,
+    "tp_da" / Bytewise(tpdu_parameters.tp_da),
     "tp_cd" / Bytewise(Prefixed(
         "tp_cdl" / Byte,
         Struct(

@@ -23,7 +23,7 @@ def test_building_sms_submit_with_data_header():
     )
     sms_submit = SmsSubmit(
         False,
-        tp_srr.NOT_REQUESTED,
+        tp_srr.STATUS_REPORT_NOT_REQUESTED,
         tp_rd.ACCEPT,
         0xcc,
         destination_address,
@@ -75,7 +75,7 @@ def test_parsing_sms_submit_with_data_header():
                            "rp_user_data": {"tpdu": {
                                "tp_rp": False,
                                "tp_udhi": True,
-                               "tp_srr": tp_srr.NOT_REQUESTED,
+                               "tp_srr": tp_srr.STATUS_REPORT_NOT_REQUESTED,
                                "tp_vpf": tp_vpf.ABSOLUTE_FORMAT,
                                "tp_rd": tp_rd.ACCEPT,
                                "tp_mti": tp_mti.SMS_SUBMIT_OR_REPORT,
@@ -124,7 +124,7 @@ def test_building_sms_submit_without_data_header():
     )
     sms_submit = SmsSubmit(
         False,
-        tp_srr.NOT_REQUESTED,
+        tp_srr.STATUS_REPORT_NOT_REQUESTED,
         tp_rd.ACCEPT,
         0xcc,
         destination_address,
@@ -171,7 +171,7 @@ def test_parsing_sms_submit_without_data_header():
                            "rp_user_data": {"tpdu": {
                                "tp_rp": False,
                                "tp_udhi": False,
-                               "tp_srr": tp_srr.NOT_REQUESTED,
+                               "tp_srr": tp_srr.STATUS_REPORT_NOT_REQUESTED,
                                "tp_vpf": tp_vpf.ENHANCED_FORMAT,
                                "tp_rd": tp_rd.ACCEPT,
                                "tp_mti": tp_mti.SMS_SUBMIT_OR_REPORT,
